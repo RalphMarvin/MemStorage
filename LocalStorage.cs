@@ -38,6 +38,7 @@ namespace MemStorage
                 FileInfo Info = new FileInfo(file);
                 totalSize += Info.Length;
             }
+
             if (totalSize.Equals(MAX_MEMORY) || totalSize > MAX_MEMORY)
                 return true;
             else
@@ -52,7 +53,7 @@ namespace MemStorage
         public static bool IsEmpty(string app)
         {
             StorageFileHandler StorageFile = new StorageFileHandler();
-            if (StorageFile.IsEmpty(app, true))
+            if (StorageFile.IsEmpty(app, StorageFileHandler.StorageType.LOCAL))
                 return true;
             else
                 return false;
@@ -66,11 +67,11 @@ namespace MemStorage
         public static int Count(string app)
         {
             StorageFileHandler StorageFile = new StorageFileHandler();
-            return StorageFile.Count(app, true);
+            return StorageFile.Count(app, StorageFileHandler.StorageType.LOCAL);
         }
 
         /// <summary>
-        /// Stores data stored in the local storage system.
+        /// Stores data in the local storage system.
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -83,19 +84,19 @@ namespace MemStorage
             }
             else
             {
-                StorageFile.WriteToFile(key, value, true);
+                StorageFile.WriteToFile(key, value, StorageFileHandler.StorageType.LOCAL);
             }
         }
         
         /// <summary>
-        /// Returns data stored in the local storage system associated with the key passed.
+        /// Returns data in the local storage system associated with the key passed.
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
         public static string GetItem(string key)
         {
             StorageFileHandler StorageFile = new StorageFileHandler();
-            string value = StorageFile.ReadFile(key, true);
+            string value = StorageFile.ReadFile(key, StorageFileHandler.StorageType.LOCAL);
 
             return value; 
         }
@@ -107,7 +108,7 @@ namespace MemStorage
         public static void RemoveItem(string key)
         {
             StorageFileHandler StorageFile = new StorageFileHandler();
-            StorageFile.DeleteFile(key, true);
+            StorageFile.DeleteFile(key, StorageFileHandler.StorageType.LOCAL);
         }
         
         /// <summary>
@@ -118,7 +119,7 @@ namespace MemStorage
             StorageFileHandler StorageFile = new StorageFileHandler();
             string appStoragePath = StorageFile.LocalStoragePath;
 
-            StorageFile.DeleteAllFiles(appStoragePath, true);
+            StorageFile.DeleteAllFiles(appStoragePath, StorageFileHandler.StorageType.LOCAL);
         }
     }
 }
