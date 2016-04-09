@@ -6,7 +6,7 @@ namespace MemStorage
     /// <summary>
     /// Contains methods whcih helps an application stores data temporarily for later use.
     /// </summary>
-    public class SessionStorage
+    public static class SessionStorage
     {
         /// <summary>
         /// Represents the maximum memory the session storage can have, i.e, 10MB in bytes.
@@ -52,7 +52,7 @@ namespace MemStorage
         public static bool IsEmpty(string app)
         {
             StorageFileHandler StorageFile = new StorageFileHandler();
-            if (StorageFile.IsEmpty(app, false))
+            if (StorageFile.IsEmpty(app, StorageFileHandler.StorageType.SESSION))
                 return true;
             else
                 return false;
@@ -66,7 +66,7 @@ namespace MemStorage
         public static int Count(string app)
         {
             StorageFileHandler StorageFile = new StorageFileHandler();
-            return StorageFile.Count(app, false);
+            return StorageFile.Count(app, StorageFileHandler.StorageType.SESSION);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace MemStorage
             }
             else
             {
-                StorageFile.WriteToFile(key, value, false);
+                StorageFile.WriteToFile(key, value, StorageFileHandler.StorageType.SESSION);
             }
         }
 
@@ -95,7 +95,7 @@ namespace MemStorage
         public static string GetItem(string key)
         {
             StorageFileHandler StorageFile = new StorageFileHandler();
-            string value = StorageFile.ReadFile(key, false);
+            string value = StorageFile.ReadFile(key, StorageFileHandler.StorageType.SESSION);
 
             return value;
         }
@@ -107,7 +107,7 @@ namespace MemStorage
         public static void RemoveItem(string key)
         {
             StorageFileHandler StorageFile = new StorageFileHandler();
-            StorageFile.DeleteFile(key, false);
+            StorageFile.DeleteFile(key, StorageFileHandler.StorageType.SESSION);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace MemStorage
             StorageFileHandler StorageFile = new StorageFileHandler();
             string appStoragePath = StorageFile.SessionStoragePath;
 
-            StorageFile.DeleteAllFiles(appStoragePath, false);
+            StorageFile.DeleteAllFiles(appStoragePath, StorageFileHandler.StorageType.SESSION);
         }
     }
 }
