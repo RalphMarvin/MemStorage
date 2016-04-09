@@ -6,7 +6,7 @@ namespace MemStorage
     /// <summary>
     /// MemStorage's engine class.
     /// </summary>
-    class StorageFileHandler : IStorageFileOperations
+    public class StorageFileHandler : IStorageFileOperations
     {
         /// <summary>
         /// Contains the name of the application using the library.
@@ -31,7 +31,16 @@ namespace MemStorage
             set { appName = value; }
             get { return appName; }
         }
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public enum StorageType
+        {
+            LOCAL = 0,
+            SESSION = 1,
+        }
+
         /// <summary>
         /// Returns the full path to the local storage directory
         /// </summary>
@@ -39,7 +48,8 @@ namespace MemStorage
         {
             get { return DEFAULT_PATH + Path.DirectorySeparatorChar + "LocalStorage" + Path.DirectorySeparatorChar + AppName; }
         }
-        
+
+
         /// <summary>
         /// Returns the full path to the session storage directory
         /// </summary>
@@ -53,9 +63,9 @@ namespace MemStorage
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public int Count(string path, bool localStorage)
+        public int Count(string path, StorageType storageType)
         {
-            path = HandleStoragePaths(localStorage);
+            path = GetStoragePath(storageType);
 
             string[] files = Directory.GetFiles(path);
 
@@ -70,9 +80,9 @@ namespace MemStorage
             string localPath = LocalStoragePath;
             string sessionPath = SessionStoragePath;
             
-            //only check for either of the directory's existence,
+            //only checks for either of the directory's existence,
             //the assumption here is that if one exists the other exists.
-            if (!DirectoryExists(localPath, true) || !DirectoryExists(sessionPath, false))
+            if (!DirectoryExists(localPath, StorageType.LOCAL) || !DirectoryExists(sessionPath, StorageType.SESSION))
             {
                 try
                 {
@@ -87,12 +97,12 @@ namespace MemStorage
         }
 
         /// <summary>
-        /// Deletes all storage files belonging to the application uisng this library.
+        /// Deletes all storage files belonging to the application using this library.
         /// </summary>
         /// <param name="path"></param>
-        public void DeleteAllFiles(string path, bool localStorage)
+        public void DeleteAllFiles(string path, StorageType storageType)
         {
-            path = HandleStoragePaths(localStorage);
+            path = GetStoragePath(storageType);
             string[] files = Directory.GetFiles(path);
             
             foreach(string file in files)
@@ -119,9 +129,9 @@ namespace MemStorage
         /// Permanently deletes a storage file.
         /// </summary>
         /// <param name="fileName"></param>
-        public void DeleteFile(string fileName, bool localStorage)
+        public void DeleteFile(string fileName, StorageType storageType)
         {
-            fileName = HandleStoragePaths(localStorage) + Path.DirectorySeparatorChar + fileName + MEMSTORAGE_EXTENSION;
+            fileName = GetStoragePath(storageType) + Path.DirectorySeparatorChar + fileName + MEMSTORAGE_EXTENSION;
 
             if (FileExists(fileName))
             {
@@ -145,9 +155,9 @@ namespace MemStorage
         /// </summary>
         /// <param name="dirName"></param>
         /// <returns></returns>
-        public bool DirectoryExists(string dirName, bool localStorage)
+        public bool DirectoryExists(string dirName, StorageType storageType)
         {
-            dirName = HandleStoragePaths(localStorage);
+            dirName = GetStoragePath(storageType);
             if (Directory.Exists(dirName))
                 return true;
             else
@@ -170,13 +180,13 @@ namespace MemStorage
         /// <summary>
         /// Returns the appropriate path depending on the parameter passed.
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="localStorage"></param>
-        public string HandleStoragePaths(bool localStorage)
+        /// <param name="storageType"></param>
+        /// <returns></returns>
+        public string GetStoragePath(StorageType storageType)
         {
-            switch(localStorage)
+            switch (storageType)
             {
-                case true:
+                case StorageType.LOCAL:
                     return LocalStoragePath;
                 default:
                     return SessionStoragePath;
@@ -188,9 +198,9 @@ namespace MemStorage
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public bool IsEmpty(string path, bool localStorage)
+        public bool IsEmpty(string path, StorageType storageType)
         {
-            path = HandleStoragePaths(localStorage);
+            path = GetStoragePath(storageType);
             string[] files = Directory.GetFiles(path);
 
             if (files.Length == 0)
@@ -204,18 +214,18 @@ namespace MemStorage
         /// </summary>
         /// <param name="fileName"></param>
         /// <param name="content"></param>
-        public void OverWriteFile(string fileName, string content, bool localStorage)
+        public void OverWriteFile(string fileName, string content, StorageType storageType)
         {
-            fileName = HandleStoragePaths(localStorage) + Path.DirectorySeparatorChar + fileName + MEMSTORAGE_EXTENSION;
+            fileName = GetStoragePath(storageType) + Path.DirectorySeparatorChar + fileName + MEMSTORAGE_EXTENSION;
             if (FileExists(fileName))
             {
                 try
                 {
                     File.AppendAllText(fileName, content);
                 }
-                catch (IOException err)
+                catch (IOException)
                 {
-                    throw new ApplicationException(err.Message);
+                    throw new ApplicationException("Error occured writing to file");
                 }
             }
             else
@@ -229,9 +239,9 @@ namespace MemStorage
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public string ReadFile(string fileName, bool localStorage)
+        public string ReadFile(string fileName, StorageType storageType)
         {
-            fileName = HandleStoragePaths(localStorage) + Path.DirectorySeparatorChar + fileName + MEMSTORAGE_EXTENSION;
+            fileName = GetStoragePath(storageType) + Path.DirectorySeparatorChar + fileName + MEMSTORAGE_EXTENSION;
             if (FileExists(fileName))
             {
                 string content = File.ReadAllText(fileName);
@@ -248,18 +258,18 @@ namespace MemStorage
         /// </summary>
         /// <param name="fileName"></param>
         /// <param name="content"></param>
-        public void WriteToFile(string fileName, string content, bool localStorage)
+        public void WriteToFile(string fileName, string content, StorageType storageType)
         {
-            fileName = HandleStoragePaths(localStorage) + Path.DirectorySeparatorChar + fileName + MEMSTORAGE_EXTENSION;
+            fileName = GetStoragePath(storageType) + Path.DirectorySeparatorChar + fileName + MEMSTORAGE_EXTENSION;
             if (!FileExists(fileName))
             {
                 try
                 {
                     File.WriteAllText(fileName, content);
                 }
-                catch (IOException err)
+                catch (IOException)
                 {
-                    throw new ApplicationException(err.Message);
+                    throw new ApplicationException("Error occured writing to storage disk");
                 }
             }
             else
